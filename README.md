@@ -6,45 +6,7 @@ Deploying a containerized microservice onto a lightweight Kubernetes (k3s) clust
 
 ## 1. System Architecture Diagram
 
-+---------------------------------------------------------------------------------------------------+
-|                                      HOST LINUX VM (Ubuntu 22.04 LTS)                             |
-|                                                                                                   |
-|  [ External User / Reviewer Traffic ]                                                             |
-|                    |                                                                              |
-|                    v                                                                              |
-|  [ Traefik Ingress Controller (Port 80 / Port 443) ]                                              |
-|                    |                                                                              |
-|                    v                                                                              |
-|  [ ClusterIP Service: sre-app-service (Port 8000) ]                                               |
-|                    |                                                                              |
-|         +----------+----------+                                                                   |
-|         |                     |                                                                   |
-|         v                     v                                                                   |
-|  [ Pod: sre-app-replica-1 ]  [ Pod: sre-app-replica-2 ]  (FastAPI Microservice, Non-root UID 10001) |
-|    - Endpoint: /api/v1/data (Business logic)                                                      |
-|    - Endpoint: /healthz (Readiness & Liveness probes)                                             |
-|    - Endpoint: /metrics (Prometheus RED telemetry)                                                |
-|    - Endpoint: /stress/cpu (Failure & capacity stress testing)                                    |
-|         |                     |                                                                   |
-|         +----------+----------+                                                                   |
-|                    |                                                                              |
-|         +----------+----------------------------+                                                 |
-|         | HTTP Pull (/metrics every 15s)        | File Tail (/var/log/pods/*)                     |
-|         v                                       v                                                 |
-|  [ Prometheus TSDB ]                     [ Promtail DaemonSet ]                                   |
-|    - Scrapes app & node telemetry               | HTTP Stream push                                |
-|    - Evaluates AlertRules (CrashLoop, CPU)      v                                                 |
-|         |                                [ Loki TSDB ] (Port 3100)                                |
-|         v                                       |                                                 |
-|  [ Alertmanager ] (Port 9093)                   |                                                 |
-|         \                                      /                                                  |
-|          \                                    /                                                   |
-|           v                                  v                                                    |
-|  [ Grafana Visualization Engine ] (Port 3000)                                                     |
-|    - Dashboard 1: Application Service Health (RPS, Latency P95, Error Rates)                      |
-|    - Dashboard 2: Kubernetes Cluster Overview (CPU, Memory, Pod Statuses)                         |
-|    - Explorer: Centralized Log Analytics via Loki LogQL queries                                   |
-+---------------------------------------------------------------------------------------------------+
+<img width="771" height="331" alt="image" src="https://github.com/user-attachments/assets/c16be3ce-a81e-461c-a909-61f48d96f37e" />
 
 ---
 
@@ -59,7 +21,7 @@ Deploying a containerized microservice onto a lightweight Kubernetes (k3s) clust
 
 ---
 
-## 3. Step-by-Step Environment Reproduction (Setup)
+## 3. Setup
 
 ### Step 1: Base System Initialization
 sudo apt update && sudo apt install -y curl wget git jq docker.io
@@ -70,10 +32,10 @@ newgrp docker
 curl -sfL https://get.k3s.io | sh -
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown $(id -u):$(id -g) ~/.kube/config
+sudo chown ~/.kube/config
 chmod 600 ~/.kube/config
-export KUBECONFIG=~/.kube/config
-echo "export KUBECONFIG=~/.kube/config" >> ~/.bashrc
+export KUBECONFIG= ~/.kube/config
+echo "export KUBECONFIG= ~/.kube/config" >> ~/.bashrc
 
 ### Step 3: Install Helm 3
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
