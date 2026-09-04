@@ -1,0 +1,13 @@
+promtail:
+  enabled: true
+loki:
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  datasource:
+    enabled: true
+    isDefault: false

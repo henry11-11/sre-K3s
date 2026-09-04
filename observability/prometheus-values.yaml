@@ -1,0 +1,80 @@
+grafana:
+  adminPassword: "AdminPassword123!"
+  service:
+    type: ClusterIP
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  # 1. Disable the sidecar that causes duplicate default datasource errors
+  sidecar:
+    datasources:
+      enabled: false
+
+  # 2. Directly configure both Prometheus and Loki cleanly
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-kube-prometheus-prometheus.monitoring:9090
+          access: proxy
+          isDefault: true
+        - name: Loki
+          type: loki
+          url: http://loki.monitoring:3100
+          access: proxy
+          isDefault: false
+
+  # 3. Disable background plugin downloads to save disk I/O and network
+  grafana.ini:
+    plugins:
+      allow_loading_unsigned_plugins: ""
+    analytics:
+      check_for_updates: false
+      check_for_plugin_updates: false
+
+  # 4. Generous probe thresholds
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    failureThreshold: 15
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    failureThreshold: 15
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
