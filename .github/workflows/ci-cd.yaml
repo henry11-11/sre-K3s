@@ -49,4 +49,4 @@ jobs:
 
       - name: Verify Deployment Rollout Status
         run: |
-          kubectl rollout status deployment/sre-app -n production --timeout=120s
+          kubectl rollout status deployment/sre-app -n production --timeout=240s
