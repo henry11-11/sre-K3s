@@ -82,6 +82,9 @@ The Ingress routes incoming traffic with host header matching "app.local":
   curl -H "Host: app.local" http://localhost/metrics
 
 ### 2. Access Grafana Dashboards & Logs
+
+<img width="1851" height="992" alt="Screenshot From 2026-09-04 16-58-09" src="https://github.com/user-attachments/assets/a5dc3c57-7738-4b9a-927d-7277ae6157d4" />
+
 Start port-forwarding Grafana:
 kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80 --address 0.0.0.0
 
@@ -100,6 +103,9 @@ kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80 --address 0.0.
   Query error logs only: {namespace="production"} |= "error"
 
 ### 3. Access Prometheus Web UI & Alert Status
+
+<img width="1851" height="992" alt="Screenshot From 2026-09-04 16-57-08" src="https://github.com/user-attachments/assets/c831fe21-bd8c-4f91-9f8b-e46836725a53" />
+
 Start port-forwarding Prometheus:
 kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090 --address 0.0.0.0
 
