@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/sre-microservice
+  IMAGE_NAME: henry11-11/sre-k3s/sre-microservice
 
 jobs:
   build-and-deploy:
